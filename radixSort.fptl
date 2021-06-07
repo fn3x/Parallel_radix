@@ -1,0 +1,74 @@
+Scheme radixSort
+{
+	N = 10000;
+	P = 8;
+		
+	Array = (("./" * N.toString * ".txt").add * N.EmptyArray).openFile.([:] -> [1], print);	
+    EmptyArray = ([1] * 0.0).arrayCreate;
+
+	
+	@ = (Array * P).Sort.print;
+    
+    Fun Sort{
+      Array = [1];
+      PARALLEL_OP_CNT = [2];
+      
+      Len = Array.arrayLen;
+      TmpArray = (Len * 0.0).arrayCreate;
+      Max = (Array * 0.0 * 0).findMax;
+
+      @ = Array.Swap;
+
+      Fun Swap{
+        Array = [1];
+        pos = 0;
+        j = 1;
+        CurrentNumber = (Array * j).arrayGet;
+        NewArray = ((Array * j * (Array * pos).arrayGet).arraySet);
+        
+        @ = (NewArray * pos * CurrentNumber).arraySet;
+      }
+      Fun reorderBuckets{
+        Rank = [1];
+        Array = [2];
+        i = [3];
+        j = [4];
+        pos = [5];
+
+        @ = (i * 10).less; // TODO
+
+        Fun ReorderByDigit{
+          Array = [1];
+          Rank = [2];
+          pos = [3];
+          j = [4];
+
+          @ = (j * Array.arrayLen).less; // TODO
+        }
+      }
+      Fun getDigit{
+        Number = [1];
+        Rank = [2];
+        Counter = [3];
+        
+        @ = ((Number * 0).greater * (Rank * Counter).nequal).and -> ((Number * 10).div * Rank * (Counter * 10).mul).getDigit,
+            (Number * 10).mod;
+      }
+      Fun findMax{
+        array = [1];
+        max = [2];
+        currIndex = [3];
+
+        @ = (array.arrayLen  * 0).equal -> -1,
+            ((array.arrayLen  * 1).sub * currIndex).equal -> ((array * currIndex).arrayGet * max).getMaxOf.toInt,
+            (array.arrayLen  * 1).greater -> (array * ((array * currIndex).arrayGet * max).getMaxOf * (currIndex * 1).add).findMax;
+      }
+      Fun getMaxOf{
+        @ = ([1] * [2]).greater -> [1], [2];
+      }
+    }
+}
+
+//параметр = степени параллелизма, размер массива
+Application
+%radixSort
