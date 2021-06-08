@@ -1,74 +1,90 @@
-Scheme radixSort
+Scheme Sort
 {
-	N = 10000;
+  N = 10000;
 	P = 8;
-		
+
 	Array = (("./" * N.toString * ".txt").add * N.EmptyArray).openFile.([:] -> [1], print);	
-    EmptyArray = ([1] * 0.0).arrayCreate;
+    EmptyArray = ([1] * 0).arrayCreate;
 
-	
-	@ = (Array * P).Sort.print;
-    
-    Fun Sort{
-      Array = [1];
-      PARALLEL_OP_CNT = [2];
-      
-      Len = Array.arrayLen;
-      TmpArray = (Len * 0.0).arrayCreate;
-      Max = (Array * 0.0 * 0).findMax;
+  MaxNum = (Array * 0 * 0).findMax;
 
-      @ = Array.Swap;
+  @ = (Array * 1 * MaxNum).RadixSort.print;
 
-      Fun Swap{
-        Array = [1];
-        pos = 0;
-        j = 1;
-        CurrentNumber = (Array * j).arrayGet;
-        NewArray = ((Array * j * (Array * pos).arrayGet).arraySet);
-        
-        @ = (NewArray * pos * CurrentNumber).arraySet;
-      }
-      Fun reorderBuckets{
-        Rank = [1];
-        Array = [2];
+  Fun RadixSort{
+    Array = [1];
+    Rank = [2];
+    MaxNum = [3];
+    AugArray = (Rank * 1).equal -> (Array * (1 * 0).arrayCreate).arrayCat, Array;
+
+    @ = ((MaxNum * Rank).div * 0).greater -> ((AugArray * Rank * 0).ReorderBuckets * (Rank * 10).mul * MaxNum).RadixSort, AugArray;
+
+    Fun ReorderBuckets{
+      AugArray = [1];
+      Rank = [2];
+      i = [3];
+
+      posIndex = (AugArray.arrayLen * 1).sub;
+      posValue = (AugArray * posIndex).arrayGet;
+
+      @ = (i * 10).less -> ((AugArray * Rank * i * 0).ReorderByDigit * Rank * (i * 1).add * 0).ReorderBuckets,
+          (i * 10).equal -> (AugArray * (AugArray.arrayLen * 1).sub * 0).arraySet;
+
+      Fun ReorderByDigit{
+        AugArray = [1];
+        Rank = [2];
         i = [3];
         j = [4];
-        pos = [5];
 
-        @ = (i * 10).less; // TODO
+        CurrentNumber = (AugArray * j).arrayGet;
+        SwappedArray = (AugArray * posValue * j).Swap;
+        IncPosArray = (SwappedArray * posIndex * (posValue * 1).add).arraySet;
+        posIndex = (AugArray.arrayLen * 1).sub;
+        posValue = (AugArray * posIndex).arrayGet;
 
-        Fun ReorderByDigit{
+        @ = ((j * (AugArray.arrayLen * 1).sub).less * ((CurrentNumber * Rank * 1).getDigit * i).equal).and -> (IncPosArray * Rank * i * (j * 1).add).ReorderByDigit,
+            ((j * (AugArray.arrayLen * 1).sub).less * ((CurrentNumber * Rank * 1).getDigit * i).nequal).and -> (AugArray * Rank * i * (j * 1).add).ReorderByDigit,
+            (j * (AugArray.arrayLen * 1).sub).equal -> AugArray;
+
+        Fun Swap{
           Array = [1];
-          Rank = [2];
-          pos = [3];
-          j = [4];
+          i = [2];
+          j = [3];
 
-          @ = (j * Array.arrayLen).less; // TODO
+          @ = (Array * i * j * (Array * i).arrayGet * (Array * j).arrayGet).TempSwap;
+
+          Fun TempSwap{
+            Array = [1];
+            i = [2];
+            j = [3];
+            first = [4];
+            second = [5];
+            
+            @ = ((Array * i * second).arraySet * j * first).arraySet;
+          }
+        }
+        Fun getDigit{
+          Number = [1];
+          Rank = [2];
+          Counter = [3];
+          
+          @ = ((Number * 0).greater * (Rank * Counter).nequal).and -> ((Number * 10).div * Rank * (Counter * 10).mul).getDigit,
+              (Number * 10).mod;
         }
       }
-      Fun getDigit{
-        Number = [1];
-        Rank = [2];
-        Counter = [3];
-        
-        @ = ((Number * 0).greater * (Rank * Counter).nequal).and -> ((Number * 10).div * Rank * (Counter * 10).mul).getDigit,
-            (Number * 10).mod;
-      }
-      Fun findMax{
-        array = [1];
-        max = [2];
-        currIndex = [3];
-
-        @ = (array.arrayLen  * 0).equal -> -1,
-            ((array.arrayLen  * 1).sub * currIndex).equal -> ((array * currIndex).arrayGet * max).getMaxOf.toInt,
-            (array.arrayLen  * 1).greater -> (array * ((array * currIndex).arrayGet * max).getMaxOf * (currIndex * 1).add).findMax;
-      }
-      Fun getMaxOf{
-        @ = ([1] * [2]).greater -> [1], [2];
-      }
     }
-}
+  }
+  Fun findMax{
+    array = [1];
+    max = [2];
+    currIndex = [3];
 
-//параметр = степени параллелизма, размер массива
+    @ = (array.arrayLen  * 0).equal -> -1,
+        ((array.arrayLen  * 1).sub * currIndex).equal -> ((array * currIndex).arrayGet * max).getMaxOf.toInt,
+        (array.arrayLen  * 1).greater -> (array * ((array * currIndex).arrayGet * max).getMaxOf * (currIndex * 1).add).findMax;
+  }
+  Fun getMaxOf{
+    @ = ([1] * [2]).greater -> [1], [2];
+  }
+}
 Application
-%radixSort
+%Sort

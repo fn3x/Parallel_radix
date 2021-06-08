@@ -1,0 +1,7 @@
+Scheme test
+{
+  Array = (CompoundArray * 0).arrayGet;
+  pos = (CompoundArray * 1).arrayGet;
+}
+Application
+%test
