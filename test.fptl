@@ -1,7 +1,24 @@
 Scheme test
 {
-  Array = (CompoundArray * 0).arrayGet;
-  pos = (CompoundArray * 1).arrayGet;
+  Array = (3 * 5).arrayCreate;
+  pos = (1 * 0).arrayCreate;
+
+  Compound = (((2 * (1 * 0).arrayCreate).arrayCreate * 0 * Array).arraySet * 1 * pos).arraySet;
+
+  secondElem = (Compound).GetPos;
+
+  @ = secondElem.print;
+
+  Fun GetArray{
+    Compound = [1];
+
+    @ = (Compound * 0).arrayGet;
+  }
+  Fun GetPos{
+    Compound = [1];
+
+    @ = ((Compound * 1).arrayGet * 0).arrayGet;
+  }
 }
 Application
 %test
