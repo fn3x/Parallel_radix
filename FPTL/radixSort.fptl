@@ -7,42 +7,39 @@ Scheme RadixSort
 
   MaxNum = (Array * 0 * 0).findMax;
 
-  @ = (Array * 1 * MaxNum).Sort.print;
+  @ = (Array * 0 * 1 * MaxNum).Sort.print;
 
   Fun Sort{
     Array = [1];
-    Rank = [2];
-    MaxNum = [3];
-    AugArray = (Rank * 1).equal -> (Array * (1 * 0).arrayCreate).arrayCat, Array;
+    posValue = [2];
+    Rank = [3];
+    MaxNum = [4];
 
-    @ = ((MaxNum * Rank).div * 0).greater -> ((AugArray * Rank * 0).ReorderBuckets * (Rank * 10).mul * MaxNum).Sort, AugArray;
+    @ = ((MaxNum * Rank).div * 0).greater -> ((Array * posValue * Rank * 0).ReorderBuckets * (Rank * 10).mul * MaxNum).Sort, Array;
 
     Fun ReorderBuckets{
-      AugArray = [1];
-      Rank = [2];
-      i = [3];
+      Array = [1];
+      posValue = [2];
+      Rank = [3];
+      i = [4];
 
-      posIndex = (AugArray.arrayLen * 1).sub;
-      posValue = (AugArray * posIndex).arrayGet;
-
-      @ = (i * 10).less -> ((AugArray * Rank * i * 0).ReorderByDigit * Rank * (i * 1).add * 0).ReorderBuckets,
-          (i * 10).equal -> (AugArray * (AugArray.arrayLen * 1).sub * 0).arraySet;
+      @ = (i * 10).less -> ((Array * posValue * Rank * i * 0).ReorderByDigit * Rank * (i * 1).add * 0).ReorderBuckets,
+          (i * 10).equal -> (Array * 0);
 
       Fun ReorderByDigit{
-        AugArray = [1];
-        Rank = [2];
-        i = [3];
-        j = [4];
+        Array = [1];
+        posValue = [2];
+        Rank = [3];
+        i = [4];
+        j = [5];
 
-        CurrentNumber = (AugArray * j).arrayGet;
-        SwappedArray = (AugArray * posValue * j).Swap;
-        IncPosArray = (SwappedArray * posIndex * (posValue * 1).add).arraySet;
-        posIndex = (AugArray.arrayLen * 1).sub;
-        posValue = (AugArray * posIndex).arrayGet;
+        CurrentNumber = (Array * j).arrayGet;
+        SwappedArray = (Array * posValue * j).Swap;
+        IncPosArray = (SwappedArray * (posValue * 1).add);
 
-        @ = ((j * (AugArray.arrayLen * 1).sub).less * ((CurrentNumber * Rank * 1).getDigit * i).equal).and -> (IncPosArray * Rank * i * (j * 1).add).ReorderByDigit,
-            ((j * (AugArray.arrayLen * 1).sub).less * ((CurrentNumber * Rank * 1).getDigit * i).nequal).and -> (AugArray * Rank * i * (j * 1).add).ReorderByDigit,
-            (j * (AugArray.arrayLen * 1).sub).equal -> AugArray;
+        @ = (j * Array.arrayLen).equal -> (Array * posValue),
+            ((j * Array.arrayLen).less * ((CurrentNumber * Rank * 1).getDigit * i).equal).and -> (IncPosArray * Rank * i * (j * 1).add).ReorderByDigit,
+            ((j * Array.arrayLen).less * ((CurrentNumber * Rank * 1).getDigit * i).nequal).and -> (Array * posValue * Rank * i * (j * 1).add).ReorderByDigit;
 
         Fun Swap{
           Array = [1];
