@@ -1,23 +1,33 @@
 Scheme test
 {
-  Array = (3 * 5).arrayCreate;
-  pos = (1 * 0).arrayCreate;
+  @ = (10000 * 1000).RandomIntArray.print;
 
-  Compound = (((2 * (1 * 0).arrayCreate).arrayCreate * 0 * Array).arraySet * 1 * pos).arraySet;
+  Fun RandomIntArray{
+    Size = [1];
+    Max = [2];
 
-  secondElem = (Compound).GetPos;
+    EmptyArray = (1 * 0).arrayCreate;
 
-  @ = secondElem.print;
+    @ = (EmptyArray * Size * Max * 0).createRandomArray;
 
-  Fun GetArray{
-    Compound = [1];
+    Fun createRandomArray{
+      Array = [1];
+      Size = [2];
+      Max = [3];
+      i = [4];
 
-    @ = (Compound * 0).arrayGet;
-  }
-  Fun GetPos{
-    Compound = [1];
+      RandomNumber = Max.RandomInt;
+      RandomNumberArray = (1 * RandomNumber).arrayCreate;
 
-    @ = ((Compound * 1).arrayGet * 0).arrayGet;
+      @ = (i * 0).equal -> (RandomNumberArray * Size * Max * (i * 1).add).createRandomArray,
+          (i * Size).less -> ((Array * RandomNumberArray).arrayCat * Size * Max * (i * 1).add).createRandomArray,
+          (i * Size).equal -> Array;
+
+      Fun RandomInt{
+        Max = [1];
+        @ = (rand * Max.toReal).mul.toInt;
+      }
+    }
   }
 }
 Application
