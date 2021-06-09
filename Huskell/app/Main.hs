@@ -33,7 +33,7 @@ getRandIntArray seed = (randomRs (0, div (maxBound :: Int) 2) (mkStdGen seed))
 
 main = do
         start <- getCurrentTime
-        value <- (\x -> return x ) (length (radixsort (take 100000 (getRandIntArray 0))))
+        value <- (\x -> return x ) (length (radixsort (take 10000 (getRandIntArray 0))))
         print value
         stop <- getCurrentTime
         print $ diffUTCTime stop start
