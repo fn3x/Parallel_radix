@@ -1,23 +1,22 @@
 import System.Random
 import Data.Time
 
--- radixsort for positive integers. uses 10 buckets
+-- import библиотеки для параллельного вычисления
+
+-- Radixsort для int
 radixsort :: [Int] -> [Int]
 radixsort [] = []
 radixsort xs =
-    -- given the data, get the number of passes that are required for sorting
-    -- the largest integer
-    let maxPos = floor ((log (fromIntegral (foldl max 0 xs)) / log 10) + 1)
+    let maxPos = floor ((log (fromIntegral (foldl max 0 xs)) / log 10) + 1) -- количество раундов
 
-        -- start sorting from digit on position 0 (lowest position) to position 'maxPos'
+        -- начать с LSD до максимального разряда
         radixsort' ys pos
          | pos < 0   = ys
          | otherwise = let sortedYs   = radixsort' ys (pos - 1)
                            newBuckets = radixsort'' sortedYs [[] | i <- [1..10]] pos
                        in  [element | bucket <- newBuckets, element <- bucket]
 
-        -- given empty buckets, digit position and list, sort the values into
-        -- buckets
+        -- сортировать цифры в бакеты
         radixsort'' []     buckets _   = buckets
         radixsort'' (y:ys) buckets pos =
             let digit = div (mod y (10 ^ (pos + 1))) (10 ^ pos)
@@ -27,13 +26,12 @@ radixsort xs =
             in radixsort'' ys (bucketsBegin ++ [newBucket] ++ (tail bucketsEnd)) pos
     in radixsort' xs maxPos
 
--- get an random array given an seed
 getRandIntArray :: Int -> [Int] 
 getRandIntArray seed = (randomRs (0, div (maxBound :: Int) 2) (mkStdGen seed))
 
 main = do
         start <- getCurrentTime
-        value <- (\x -> return x ) (length (radixsort (take 10000 (getRandIntArray 0))))
+        value <- (\x -> return x ) (length (radixsort (take 2000 (getRandIntArray 0))))
         print value
         stop <- getCurrentTime
         print $ diffUTCTime stop start

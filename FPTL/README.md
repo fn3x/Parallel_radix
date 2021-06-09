@@ -1,3 +1,5 @@
-To run:
+To run sequently:
+.fptl\fptl.exe radixSort.fptl -i -t
 
-.fptl\fptl.exe radixSort.fptl
+To run in parallel:
+.fptl\fptl.exe radixSort.fptl -i -t -n [nubmer of threads]

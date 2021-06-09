@@ -1,22 +1,21 @@
-Scheme Sort
+Scheme RadixSort
 {
   N = 10000;
-	P = 8;
 
 	Array = (("./" * N.toString * ".txt").add * N.EmptyArray).openFile.([:] -> [1], print);	
     EmptyArray = ([1] * 0).arrayCreate;
 
   MaxNum = (Array * 0 * 0).findMax;
 
-  @ = (Array * 1 * MaxNum).RadixSort.print;
+  @ = (Array * 1 * MaxNum).Sort.print;
 
-  Fun RadixSort{
+  Fun Sort{
     Array = [1];
     Rank = [2];
     MaxNum = [3];
     AugArray = (Rank * 1).equal -> (Array * (1 * 0).arrayCreate).arrayCat, Array;
 
-    @ = ((MaxNum * Rank).div * 0).greater -> ((AugArray * Rank * 0).ReorderBuckets * (Rank * 10).mul * MaxNum).RadixSort, AugArray;
+    @ = ((MaxNum * Rank).div * 0).greater -> ((AugArray * Rank * 0).ReorderBuckets * (Rank * 10).mul * MaxNum).Sort, AugArray;
 
     Fun ReorderBuckets{
       AugArray = [1];
@@ -87,4 +86,4 @@ Scheme Sort
   }
 }
 Application
-%Sort
+%RadixSort
