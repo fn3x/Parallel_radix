@@ -1,6 +1,8 @@
 Scheme test
 {
-  @ = (10000 * 1000).RandomIntArray.print;
+  Size = 10;
+  Max = 100;
+  @ = (Size * Max).RandomIntArray.print;
 
   Fun RandomIntArray{
     Size = [1];

@@ -1,13 +1,42 @@
 Scheme RadixSort
 {
-  N = 10000;
+  P = [1].toInt;
+  N = [2].toInt;
+  Max = 1000;
 
-	Array = (("./" * N.toString * ".txt").add * N.EmptyArray).openFile.([:] -> [1], print);	
-    EmptyArray = ([1] * 0).arrayCreate;
+	Array = (N * Max).RandomIntArray;
+
+  Fun RandomIntArray{
+    Size = [1];
+    Max = [2];
+
+    EmptyArray = (1 * 0).arrayCreate;
+
+    @ = (EmptyArray * Size * Max * 0).createRandomArray;
+
+    Fun createRandomArray{
+      Array = [1];
+      Size = [2];
+      Max = [3];
+      i = [4];
+
+      RandomNumber = Max.RandomInt;
+      RandomNumberArray = (1 * RandomNumber).arrayCreate;
+
+      @ = (i * 0).equal -> (RandomNumberArray * Size * Max * (i * 1).add).createRandomArray,
+          (i * Size).less -> ((Array * RandomNumberArray).arrayCat * Size * Max * (i * 1).add).createRandomArray,
+          (i * Size).equal -> Array;
+
+      Fun RandomInt{
+        Max = [1];
+        @ = (rand * Max.toReal).mul.toInt;
+      }
+    }
+  }
 
   MaxNum = (Array * 0 * 0).findMax;
 
-  @ = (Array * 0 * 1 * MaxNum).Sort.print;
+  @ = (N * 1).equal -> Array.print, (Array * 0 * 1 * MaxNum).Sort.print;
 
   Fun Sort{
     Array = [1];
@@ -83,4 +112,4 @@ Scheme RadixSort
   }
 }
 Application
-%RadixSort
+%RadixSort(8, 10000)
