@@ -3,10 +3,9 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Radix_sort
+namespace C_
 {
-	public class Program
-	{
+	class Program {
     static Dictionary<int, int> threadsIndices;
     static int[] initialArray;
     static int numOfThreads = 8;
@@ -14,7 +13,7 @@ namespace Radix_sort
     {
       int Min = 0;
       int Max = 1000;
-      int sizeOfArray = 100000;
+      int sizeOfArray = 1000000;
       initialArray = new int[sizeOfArray];
 
       generateArray(Min, Max, sizeOfArray);
@@ -24,8 +23,8 @@ namespace Radix_sort
       calculateIndicesForThreads();
 
       var watch = System.Diagnostics.Stopwatch.StartNew();
-      radixParallel(maxNum, sizeOfArray);
-      // radixSequence(initialArray, sizeOfArray, maxNum);
+      // radixParallel(maxNum, sizeOfArray);
+      radixSequence(initialArray, sizeOfArray, maxNum);
       var elapsedMs = watch.ElapsedMilliseconds;
 
       Console.WriteLine("Elapsed time: " + elapsedMs.ToString() + "ms");
@@ -140,12 +139,12 @@ namespace Radix_sort
       {
         for (int j = 0; j < sizeOfArray; j++)
         {
-          int currentNumber = Array[j];
+          int currentNumber = initialArray[j];
 
           if (getDigitInNumberByRank(currentNumber, rank) == i)
           {
-            Array[j] = Array[pos];
-            Array[pos] = currentNumber;
+            initialArray[j] = initialArray[pos];
+            initialArray[pos] = currentNumber;
             pos++;
           }
         }
