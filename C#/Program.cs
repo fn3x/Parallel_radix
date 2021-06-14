@@ -12,8 +12,8 @@ namespace C_
     static void Main(string[] args)
     {
       int Min = 0;
-      int Max = 1000;
-      int sizeOfArray = 1000000;
+      int Max = 10;
+      int sizeOfArray = 10;
       initialArray = new int[sizeOfArray];
 
       generateArray(Min, Max, sizeOfArray);
@@ -22,6 +22,7 @@ namespace C_
 
       calculateIndicesForThreads();
 
+      PrintArray();
       var watch = System.Diagnostics.Stopwatch.StartNew();
       // radixParallel(maxNum, sizeOfArray);
       radixSequence(initialArray, sizeOfArray, maxNum);
@@ -114,6 +115,14 @@ namespace C_
         freq[(initialArray[i] / place) % 10]--;
       }
 
+      Console.WriteLine("Frequency array: ");
+      for (int i = 0; i < freq.Length; i++)
+      {
+        Console.Write(freq[i]);
+      }
+
+      Console.WriteLine();
+
       //Copy the output array to the input Array, Now the Array will 
       //contain sorted array based on digit at specified place
       for (int i = startIndex; i < endIndex; i++)
@@ -170,6 +179,14 @@ namespace C_
       // Store count of occurrences in count[]
       for (i = 0; i < n; i++)
         count[(arr[i] / exp) % 10]++;
+
+      Console.WriteLine("Frequency array: ");
+      for (int pos = 0; pos < count.Length; pos++)
+      {
+        Console.Write(count[pos]);
+      }
+
+      Console.WriteLine();
 
       // Change count[i] so that count[i] now contains
       // actual
