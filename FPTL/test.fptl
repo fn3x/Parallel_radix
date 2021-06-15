@@ -2,10 +2,12 @@ Scheme RadixSort
 {
   P = [1].toInt;
   N = [2].toInt;
-  Max = 10;
+  Max = 10000;
 
-	Array = (("./" * N.toString * ".txt").add * N.EmptyArray).openFile.([:] -> [1], print);	
+	ArrayFromFile = (("./" * N.toString * ".txt").add * N.EmptyArray).openFile.([:] -> [1], print);	
     EmptyArray = ([1] * 0).arrayCreate;
+
+  RandomArray = (N * Max).RandomIntArray;
 
   Fun RandomIntArray{
     Size = [1];
@@ -35,13 +37,16 @@ Scheme RadixSort
     }
   }
 
-  @ = (N * Array).CombineSorts.print;
+  @ = (N * RandomArray).CombineSorts;
 
   Fun CombineSorts{
     N = [1];
     Array = [2];
 
     MaxNum = (Array * 0 * 0).findMax;
+    ArraysMiddleIndex = (Array.arrayLen * 2).div;
+
+    @ = (N * ((N * Array * MaxNum * 0 * ArraysMiddleIndex).SortDigits * (N * Array * MaxNum * ArraysMiddleIndex * (Array.arrayLen * 1).sub).SortDigits).[2] * MaxNum * 0 * (Array.arrayLen * 1).sub).SortDigits;
 
     Fun findMax{
       array = [1];
@@ -55,8 +60,6 @@ Scheme RadixSort
     Fun getMaxOf{
       @ = ([1] * [2]).greater -> [1], [2];
     }
-
-    @ = (N * Array * MaxNum * 2 * 9).SortDigits;
   }
 
   Fun SortDigits{
@@ -67,7 +70,7 @@ Scheme RadixSort
     EndIndex = [5];
 
     @ = (N * 1).equal -> Array,
-        (Array * 0 * 1 * MaxNum * StartIndex * EndIndex).Sort;
+        (Array * StartIndex * 1 * MaxNum * StartIndex * EndIndex).Sort;
 
     Fun Sort{
       Array = [1];
@@ -88,7 +91,7 @@ Scheme RadixSort
         endIndex = [6];
 
         @ = (i * 10).less -> ((Array * posValue * Rank * i * startIndex * endIndex).ReorderByDigit * Rank * (i * 1).add * startIndex * endIndex).ReorderBuckets,
-            (i * 10).equal -> (Array * 0);
+            (i * 10).equal -> (Array * startIndex);
 
         Fun ReorderByDigit{
           Array = [1];
@@ -102,7 +105,7 @@ Scheme RadixSort
           SwappedArray = (Array * posValue * j).Swap;
           IncPosArray = (SwappedArray * (posValue * 1).add);
 
-          @ = (j * (endIndex * 1).add).equal -> (Array * posValue),
+          @ = (j * endIndex).greater -> (Array * posValue),
               ((j * endIndex).lequal * ((CurrentNumber * Rank * 1).getDigit * i).equal).and -> (IncPosArray * Rank * i * (j * 1).add * endIndex).ReorderByDigit,
               ((j * endIndex).lequal * ((CurrentNumber * Rank * 1).getDigit * i).nequal).and -> (Array * posValue * Rank * i * (j * 1).add * endIndex).ReorderByDigit;
 
@@ -137,4 +140,4 @@ Scheme RadixSort
   }
 }
 Application
-%RadixSort(8, 10)
+%RadixSort(8, 1000)
