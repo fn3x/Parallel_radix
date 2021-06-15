@@ -1,37 +1,79 @@
 import System.Random
 import Data.Time
+import Data.List (delete)
+import Control.Parallel
+import Control.Monad
 
--- import библиотеки для параллельного вычисления
+radixSort :: [Int] -> [Int]
+radixSort [] = []
+radixSort array =
+  let
+    maxNum = maximum'' array
+    lastIndex = (length array) - 1
+    middleIndex = ((length array) `div` 2) - 1
 
--- Radixsort для int
-radixsort :: [Int] -> [Int]
-radixsort [] = []
-radixsort xs =
-    let maxPos = floor ((log (fromIntegral (foldl max 0 xs)) / log 10) + 1) -- количество раундов
+    forLoopSort array rank maxNum
+      | (maxNum `div` rank) <= 0 = array
+      | otherwise =
+        let
+          left = slice 0 middleIndex array
+          right = slice (middleIndex + 1) lastIndex array
+          sortLeft = localSort left rank
+          sortRight = localSort right rank
 
-        -- начать с LSD до максимального разряда
-        radixsort' ys pos
-         | pos < 0   = ys
-         | otherwise = let sortedYs   = radixsort' ys (pos - 1)
-                           newBuckets = radixsort'' sortedYs [[] | i <- [1..10]] pos
-                       in  [element | bucket <- newBuckets, element <- bucket]
+          reorder = localSort (sortLeft `par` sortRight `par` sortLeft ++ sortRight) rank
 
-        -- сортировать цифры в бакеты
-        radixsort'' []     buckets _   = buckets
-        radixsort'' (y:ys) buckets pos =
-            let digit = div (mod y (10 ^ (pos + 1))) (10 ^ pos)
-                (bucketsBegin, bucketsEnd) = splitAt digit buckets
-                bucket = head bucketsEnd
-                newBucket = bucket ++ [y]
-            in radixsort'' ys (bucketsBegin ++ [newBucket] ++ (tail bucketsEnd)) pos
-    in radixsort' xs maxPos
+        in forLoopSort reorder (rank * 10) maxNum
 
-getRandIntArray :: Int -> [Int] 
-getRandIntArray seed = (randomRs (0, div (maxBound :: Int) 2) (mkStdGen seed))
+  in forLoopSort array 1 maxNum
+
+maximum' :: Ord a => [a] -> a
+maximum' = foldr1 (\x y ->if x >= y then x else y)
+
+maximum'' :: Ord a => [a] -> a
+maximum'' [x]       = x
+maximum'' (x:x':xs) = maximum' ((if x >= x' then x else x'):xs)
+
+slice :: Int -> Int -> [a] -> [a]
+slice from to xs = take (to - from + 1) (drop from xs)
+
+localSort :: [Int] -> Int -> [Int]
+localSort [] _ = []
+localSort xs rank =
+  let x = minimumByRank xs rank
+  in  x : localSort (delete x xs) rank
+
+minimumByRank array rank =
+  let
+    getDigitAt index = digitByRank (array!!index) rank
+    
+    findMin array rank currIndex minIndex
+      | (getDigitAt currIndex) < (getDigitAt minIndex) = currIndex
+      | otherwise = minIndex
+
+    forMinLoop i array rank indexOfMin
+      | i < (length array) =
+          forMinLoop (i + 1) array rank (findMin array rank i indexOfMin)
+      | otherwise = array!!indexOfMin
+  
+  in forMinLoop 0 array rank 0
+
+digitByRank :: Int -> Int -> Int
+digitByRank number rank =
+  let
+    whileLoop number rank counter
+      | number > 0 && rank /= counter =
+        whileLoop (number `div` 10) rank (counter * 10)
+      | otherwise = number `mod` 10
+  in whileLoop number rank 1
+
+randomInts :: Int -> (Int,Int) -> IO [Int]
+randomInts len bounds = replicateM len $ randomRIO bounds
 
 main = do
-        start <- getCurrentTime
-        value <- (\x -> return x ) (length (radixsort (take 2000 (getRandIntArray 0))))
-        print value
-        stop <- getCurrentTime
-        print $ diffUTCTime stop start
+  randomArray <- (randomInts 1000 (1,100))
+  start <- getCurrentTime
+  value <- (\x -> return x ) (length (radixSort randomArray))
+  print value
+  stop <- getCurrentTime
+  print $ diffUTCTime stop start

@@ -4,13 +4,6 @@ import Data.List (delete)
 import Control.Parallel
 import Control.Monad
 
--- import библиотеки для параллельного вычисления
-
--- for rank = 1; maxNum / rank > 0; rank *= 10
---    sort(left, rank) 'par' sort(right, rank)
---    reorder(left, right)
---      [20, 12, 30]
-
 radixSort :: [Int] -> [Int]
 radixSort [] = []
 radixSort array =
@@ -78,8 +71,9 @@ randomInts :: Int -> (Int,Int) -> IO [Int]
 randomInts len bounds = replicateM len $ randomRIO bounds
 
 main = do
-  randomArray <- (randomInts 1000000 (1,1000))
+  randomArray <- (randomInts 1000 (1,100))
   start <- getCurrentTime
   value <- (\x -> return x ) (length (radixSort randomArray))
+  print value
   stop <- getCurrentTime
   print $ diffUTCTime stop start
