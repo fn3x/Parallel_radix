@@ -18,14 +18,13 @@ radixSort array =
           (left, right) = splitAt middleIndex array
           leftBuckets = getBuckets left rank
           rightBuckets = getBuckets right rank
-
-          reorder = reorderBuckets (leftBuckets `par` rightBuckets `par` (leftBuckets `append` rightBuckets))
-
+          combined = leftBuckets `par` rightBuckets `par` (leftBuckets `append` rightBuckets)
+          reorder = reorderBuckets combined
         in forLoopSort reorder (rank * 10) maxNum
 
   in forLoopSort array 1 maxNum
 
-append xs ys = [ys] ++ [xs]
+append xs ys = [xs] ++ [ys]
 
 reorderBuckets combined =
   let
