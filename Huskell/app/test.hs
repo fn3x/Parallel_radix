@@ -1,6 +1,6 @@
 import System.Random
 import Data.Time
-import Data.List (delete)
+import Data.List (delete, maximum)
 import Control.Parallel
 import Control.Monad
 
@@ -8,55 +8,46 @@ radixSort :: [Int] -> [Int]
 radixSort [] = []
 radixSort array =
   let
-    maxNum = maximum'' array
-    lastIndex = (length array) - 1
+    maxNum = maximum array
     middleIndex = ((length array) `div` 2) - 1
 
     forLoopSort array rank maxNum
       | (maxNum `div` rank) <= 0 = array
       | otherwise =
         let
-          left = slice 0 middleIndex array
-          right = slice (middleIndex + 1) lastIndex array
-          sortLeft = localSort left rank
-          sortRight = localSort right rank
+          (left, right) = splitAt middleIndex array
+          leftBuckets = getBuckets left rank
+          rightBuckets = getBuckets right rank
 
-          reorder = localSort (sortLeft `par` sortRight `par` sortLeft ++ sortRight) rank
+          reorder = reorderBuckets leftBuckets rightBuckets
 
         in forLoopSort reorder (rank * 10) maxNum
 
   in forLoopSort array 1 maxNum
 
-maximum' :: Ord a => [a] -> a
-maximum' = foldr1 (\x y ->if x >= y then x else y)
-
-maximum'' :: Ord a => [a] -> a
-maximum'' [x]       = x
-maximum'' (x:x':xs) = maximum' ((if x >= x' then x else x'):xs)
-
-slice :: Int -> Int -> [a] -> [a]
-slice from to xs = take (to - from + 1) (drop from xs)
-
-localSort :: [Int] -> Int -> [Int]
-localSort [] _ = []
-localSort xs rank =
-  let x = minimumByRank xs rank
-  in  x : localSort (delete x xs) rank
-
-minimumByRank array rank =
+reorderBuckets arr1 arr2 =
   let
-    getDigitAt index = digitByRank (array!!index) rank
-    
-    findMin array rank currIndex minIndex
-      | (getDigitAt currIndex) < (getDigitAt minIndex) = currIndex
-      | otherwise = minIndex
+    combineBuckets result i
+      | i == 10 = result
+      | otherwise =
+          let
+            newArray = result ++ arr1!!i ++ arr2!!i
+          in combineBuckets newArray (i + 1)
+  in combineBuckets [] 0
 
-    forMinLoop i array rank indexOfMin
-      | i < (length array) =
-          forMinLoop (i + 1) array rank (findMin array rank i indexOfMin)
-      | otherwise = array!!indexOfMin
-  
-  in forMinLoop 0 array rank 0
+getBuckets :: [Int] -> Int -> [[Int]]
+getBuckets array rank =
+  let
+    forSortLoop buckets i
+      | i == length array = buckets
+      | otherwise =
+          let
+            curNumber = array!!i
+            currDigit = digitByRank curNumber rank
+            (leftPart, rightPart) = splitAt currDigit buckets
+            newBuckets = leftPart ++ ([((head rightPart) ++ [curNumber])] ++ tail rightPart)
+          in forSortLoop newBuckets (i + 1)
+  in forSortLoop [[], [], [], [], [], [], [], [], [], []] 0
 
 digitByRank :: Int -> Int -> Int
 digitByRank number rank =
@@ -71,9 +62,9 @@ randomInts :: Int -> (Int,Int) -> IO [Int]
 randomInts len bounds = replicateM len $ randomRIO bounds
 
 main = do
-  randomArray <- (randomInts 1000 (1,100))
+  randomArray <- (randomInts 1000 (0,100))
   start <- getCurrentTime
-  value <- (\x -> return x ) (length (radixSort randomArray))
-  print value
+  result <- (\x -> return x ) (length (radixSort randomArray))
+  print result
   stop <- getCurrentTime
   print $ diffUTCTime stop start
