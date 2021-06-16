@@ -14,3 +14,6 @@ To build:
 
 To run:
 1. cabal run
+
+To run in parallel:
+1. cabal run +RTS -s -N4

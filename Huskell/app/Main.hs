@@ -19,14 +19,18 @@ radixSort array =
           leftBuckets = getBuckets left rank
           rightBuckets = getBuckets right rank
 
-          reorder = reorderBuckets leftBuckets rightBuckets
+          reorder = reorderBuckets (leftBuckets `par` rightBuckets `par` (leftBuckets `append` rightBuckets))
 
         in forLoopSort reorder (rank * 10) maxNum
 
   in forLoopSort array 1 maxNum
 
-reorderBuckets arr1 arr2 =
+append xs ys = [ys] ++ [xs]
+
+reorderBuckets combined =
   let
+    arr1 = head combined
+    arr2 = last combined
     combineBuckets result i
       | i == 10 = result
       | otherwise =
@@ -62,7 +66,7 @@ randomInts :: Int -> (Int,Int) -> IO [Int]
 randomInts len bounds = replicateM len $ randomRIO bounds
 
 main = do
-  randomArray <- (randomInts 1000 (0,100))
+  randomArray <- (randomInts 10000 (0,100))
   start <- getCurrentTime
   result <- (\x -> return x ) (length (radixSort randomArray))
   print result
