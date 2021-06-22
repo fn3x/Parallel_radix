@@ -15,36 +15,44 @@ radixSort array p =
       | otherwise =
         let
           parallelSplit array depth
-            | depth == (p `div` 2) = array
+            | depth == ((p `div` 2) - 1) =
+              let
+                middleIndex = ((length array) `div` 2) - 1
+                (leftArray, rightArray) = splitAt middleIndex array
+                leftBuckets = getBuckets leftArray rank
+                rightBuckets = getBuckets rightArray rank
+              in leftBuckets `par` rightBuckets `par` (combineBuckets leftBuckets rightBuckets)
             | otherwise =
               let
                 middleIndex = ((length array) `div` 2) - 1
                 (leftArray, rightArray) = splitAt middleIndex array
-
-                leftSorted = parallelSplit leftArray (depth + 1)
-                rightSorted = parallelSplit rightArray (depth + 1)
-
-                leftBuckets = getBuckets leftSorted rank
-                rightBuckets = getBuckets rightSorted rank
-
-                combined = leftBuckets `par` rightBuckets `par` (leftBuckets `append` rightBuckets)
-              in reorderBuckets combined
-        in forLoopSort (parallelSplit array 0) (rank * 10) maxNum
+                leftBuckets = parallelSplit leftArray (depth + 1)
+                rightBuckets = parallelSplit rightArray (depth + 1)
+              in leftBuckets `par` rightBuckets `par` (combineBuckets leftBuckets rightBuckets)
+        in forLoopSort (sortBuckets (parallelSplit array 0)) (rank * 10) maxNum
 
   in forLoopSort array 1 maxNum
 
-append xs ys = [xs] ++ [ys]
-
-reorderBuckets combined =
+sortBuckets :: [[Int]] -> [Int]
+sortBuckets buckets =
   let
-    arr1 = head combined
-    arr2 = last combined
+    getNumbers result i
+      | i == 10 = result
+      | otherwise =
+          let
+            newArray = result ++ buckets!!i
+          in getNumbers newArray (i + 1)
+  in getNumbers [] 0
+
+combineBuckets :: [[Int]] -> [[Int]] -> [[Int]]
+combineBuckets leftBuckets rightBuckets =
+  let
     combineBuckets result i
       | i == 10 = result
       | otherwise =
           let
-            newArray = result ++ arr1!!i ++ arr2!!i
-          in combineBuckets newArray (i + 1)
+            combined = result ++ [leftBuckets!!i ++ rightBuckets!!i]
+          in combineBuckets combined (i + 1)
   in combineBuckets [] 0
 
 getBuckets :: [Int] -> Int -> [[Int]]
@@ -74,9 +82,9 @@ randomInts :: Int -> (Int,Int) -> IO [Int]
 randomInts len bounds = replicateM len $ randomRIO bounds
 
 main = do
-  randomArray <- (randomInts 100 (0,100))
+  randomArray <- (randomInts 10000 (0,100))
   start <- getCurrentTime
-  result <- (\x -> return x ) (radixSort randomArray 4)
+  result <- (\x -> return x ) (length (radixSort randomArray 8))
   print result
   stop <- getCurrentTime
   print $ diffUTCTime stop start
