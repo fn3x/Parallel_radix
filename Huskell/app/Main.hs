@@ -4,23 +4,32 @@ import Data.List (delete, maximum)
 import Control.Parallel
 import Control.Monad
 
-radixSort :: [Int] -> [Int]
-radixSort [] = []
-radixSort array =
+radixSort :: [Int] -> Int -> [Int]
+radixSort [] _ = []
+radixSort array p =
   let
     maxNum = maximum array
-    middleIndex = ((length array) `div` 2) - 1
 
     forLoopSort array rank maxNum
       | (maxNum `div` rank) <= 0 = array
       | otherwise =
         let
-          (left, right) = splitAt middleIndex array
-          leftBuckets = getBuckets left rank
-          rightBuckets = getBuckets right rank
-          combined = leftBuckets `par` rightBuckets `par` (leftBuckets `append` rightBuckets)
-          reorder = reorderBuckets combined
-        in forLoopSort reorder (rank * 10) maxNum
+          parallelSplit array depth
+            | depth == (p `div` 2) = array
+            | otherwise =
+              let
+                middleIndex = ((length array) `div` 2) - 1
+                (leftArray, rightArray) = splitAt middleIndex array
+
+                leftSorted = parallelSplit leftArray (depth + 1)
+                rightSorted = parallelSplit rightArray (depth + 1)
+
+                leftBuckets = getBuckets leftSorted rank
+                rightBuckets = getBuckets rightSorted rank
+
+                combined = leftBuckets `par` rightBuckets `par` (leftBuckets `append` rightBuckets)
+              in reorderBuckets combined
+        in forLoopSort (parallelSplit array 0) (rank * 10) maxNum
 
   in forLoopSort array 1 maxNum
 
@@ -65,9 +74,9 @@ randomInts :: Int -> (Int,Int) -> IO [Int]
 randomInts len bounds = replicateM len $ randomRIO bounds
 
 main = do
-  randomArray <- (randomInts 10000 (0,100))
+  randomArray <- (randomInts 100 (0,100))
   start <- getCurrentTime
-  result <- (\x -> return x ) (length (radixSort randomArray))
+  result <- (\x -> return x ) (radixSort randomArray 4)
   print result
   stop <- getCurrentTime
   print $ diffUTCTime stop start
