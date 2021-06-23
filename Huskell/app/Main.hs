@@ -3,17 +3,17 @@ import Data.Time
 import Data.List (delete, maximum)
 import Control.Parallel
 import Control.Monad
+import Debug.Trace
 
 radixSort :: [Int] -> Int -> [Int]
 radixSort [] _ = []
 radixSort array p =
   let
     maxNum = maximum array
-
     forLoopSort array rank maxNum
       | (maxNum `div` rank) <= 0 = array
-      | otherwise =
-        let
+      | otherwise = forLoopSort (sortBuckets (parallelSplit array 0)) (rank * 10) maxNum            
+        where
           parallelSplit array depth
             | depth == ((p `div` 2) - 1) =
               let
@@ -22,14 +22,13 @@ radixSort array p =
                 leftBuckets = getBuckets leftArray rank
                 rightBuckets = getBuckets rightArray rank
               in leftBuckets `par` rightBuckets `par` (combineBuckets leftBuckets rightBuckets)
-            | otherwise =
-              let
-                middleIndex = ((length array) `div` 2) - 1
-                (leftArray, rightArray) = splitAt middleIndex array
+
+            | otherwise = leftBuckets `par` rightBuckets `par` (combineBuckets leftBuckets rightBuckets)
+              where
                 leftBuckets = parallelSplit leftArray (depth + 1)
                 rightBuckets = parallelSplit rightArray (depth + 1)
-              in leftBuckets `par` rightBuckets `par` (combineBuckets leftBuckets rightBuckets)
-        in forLoopSort (sortBuckets (parallelSplit array 0)) (rank * 10) maxNum
+                middleIndex = ((length array) `div` 2) - 1
+                (leftArray, rightArray) = splitAt middleIndex array
 
   in forLoopSort array 1 maxNum
 
@@ -54,6 +53,8 @@ combineBuckets leftBuckets rightBuckets =
             combined = result ++ [leftBuckets!!i ++ rightBuckets!!i]
           in combineBuckets combined (i + 1)
   in combineBuckets [] 0
+
+debug = flip trace
 
 getBuckets :: [Int] -> Int -> [[Int]]
 getBuckets array rank =
