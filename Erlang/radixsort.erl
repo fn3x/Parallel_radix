@@ -6,7 +6,37 @@
 
 sort(Size, P) ->
   Array = randomArray(Size, 0, 100),
-  Max = max(Array).
+  {LeftPart, RightPart} = arrayUtils:splitListAt(Array, 5),
+  Rank = 1,
+  LeftBuckets = getBuckets(LeftPart, Rank),
+  RightBuckets = getBuckets(RightPart, Rank),
+  Combined = combineBuckets(LeftBuckets, RightBuckets),
+  Sorted = sortBuckets(Combined),
+  {Array, Sorted}.
+
+sortBuckets(Buckets) ->
+  sortBuckets(Buckets, [], 1).
+
+sortBuckets(Buckets, Result, Index) ->
+  if
+    (Index > 10) ->
+      Result;
+    true ->
+      Sorted = Result ++ lists:nth(Index, Buckets),
+      sortBuckets(Buckets, Sorted, Index + 1)
+  end.
+
+combineBuckets(Left, Right) ->
+  combineBuckets(Left, Right, [], 1).
+
+combineBuckets(Left, Right, Result, Index) ->
+  if
+    (Index > 10) ->
+      Result;
+    true ->
+      Combined = Result ++ [lists:nth(Index, Left) ++ lists:nth(Index, Right)],
+      combineBuckets(Left, Right, Combined, Index + 1)
+  end.
 
 getBuckets(Array, Rank) ->
   getBuckets(Array, [[], [], [], [], [], [], [], [], [], []], Rank, 1).
