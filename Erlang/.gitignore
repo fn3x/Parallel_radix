@@ -1,4 +1,4 @@
 arrayUtils.beam
-radixsort.beam
+radix.beam
 rebar.lock
 .vscode/

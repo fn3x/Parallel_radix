@@ -1,4 +1,4 @@
--module(radixsort).
+-module(radix).
 -export([sort/2, getDigitByRank/2, getBuckets/2]).
 -import(arrayUtils, [randomArray/3, max/1, splitListAt/2]).
 -import(lists, [nth/2]).
@@ -6,13 +6,35 @@
 
 sort(Size, P) ->
   Array = randomArray(Size, 0, 100),
-  {LeftPart, RightPart} = arrayUtils:splitListAt(Array, 5),
-  Rank = 1,
-  LeftBuckets = getBuckets(LeftPart, Rank),
-  RightBuckets = getBuckets(RightPart, Rank),
-  Combined = combineBuckets(LeftBuckets, RightBuckets),
-  Sorted = sortBuckets(Combined),
+  MaxNum = arrayUtils:max(Array),
+  Sorted = sortRec(Array, 1, MaxNum, P),
   {Array, Sorted}.
+
+sortRec(Array, Rank, MaxNum, Depth, P) ->
+  if
+    (Depth == (P div 2 - 1)) ->
+      MiddleIndex = length(Array),
+      {LeftArr, RightArr} = arrayUtils:splitListAt(Array, MiddleIndex),
+      LeftBuckets = getBuckets(LeftArr, Rank),
+      RightBuckets = getBuckets(RightArr, Rank),
+      combineBuckets(LeftBuckets, RightBuckets);
+    true ->
+      MiddleIndex = length(Array),
+      {LeftArr, RightArr} = arrayUtils:splitListAt(Array, MiddleIndex),
+      LeftBuckets = sortRec(LeftArr, Rank, MaxNum, Depth + 1, P),
+      RightBuckets = sortRec(RightArr, Rank, MaxNum, Depth + 1, P),
+      combineBuckets(LeftBuckets, RightBuckets)
+  end.
+
+sortRec(Array, Rank, MaxNum, P) ->
+  if
+    (MaxNum div Rank =< 0) ->
+      Array;
+    true ->
+      Combined = sortRec(Array, Rank, MaxNum, 0, P),
+      SortedByRank = sortBuckets(Combined),
+      sortRec(SortedByRank, Rank * 10, MaxNum, P)
+  end.
 
 sortBuckets(Buckets) ->
   sortBuckets(Buckets, [], 1).
