@@ -1,12 +1,12 @@
 -module(radix).
--export([sort/2, getDigitByRank/2, getBuckets/2, benchmark/3]).
--import(arrayUtils, [randomArray/3, max/1, splitListAt/2]).
+-export([sort/2, benchmark/3]).
+-import(arrayUtils, [max/1, splitListAt/2]).
 -import(lists, [nth/2]).
 -author("Art").
 
 benchmark(Fun, L, P) ->
   Runs = [timer:tc(?MODULE, Fun, [L, P])
-          || _ <- lists:seq(1, 100)],
+          || _ <- lists:seq(1, 10)],
   lists:sum([T || {T, _} <- Runs]) / (1000 * length(Runs)).
 
 sort(Array, P) ->
@@ -26,7 +26,6 @@ sortRec(Array, Rank, MaxNum, P) ->
 sortRec(Array, Rank, MaxNum, Depth, P) ->
   if
     (Depth == 0) ->
-      io:fwrite("sortRec!~n", []),
       getBuckets(Array, Rank);
     true ->
       MiddleIndex = length(Array),
