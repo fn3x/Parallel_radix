@@ -1,39 +1,46 @@
 -module(radix).
--export([sort/2, getDigitByRank/2, getBuckets/2]).
+-export([sort/2, getDigitByRank/2, getBuckets/2, benchmark/3]).
 -import(arrayUtils, [randomArray/3, max/1, splitListAt/2]).
 -import(lists, [nth/2]).
 -author("Art").
 
-sort(Size, P) ->
-  Array = randomArray(Size, 0, 100),
-  MaxNum = arrayUtils:max(Array),
-  Sorted = sortRec(Array, 1, MaxNum, P),
-  {Array, Sorted}.
+benchmark(Fun, L, P) ->
+  Runs = [timer:tc(?MODULE, Fun, [L, P])
+          || _ <- lists:seq(1, 100)],
+  lists:sum([T || {T, _} <- Runs]) / (1000 * length(Runs)).
 
-sortRec(Array, Rank, MaxNum, Depth, P) ->
-  if
-    (Depth == (P div 2 - 1)) ->
-      MiddleIndex = length(Array),
-      {LeftArr, RightArr} = arrayUtils:splitListAt(Array, MiddleIndex),
-      LeftBuckets = getBuckets(LeftArr, Rank),
-      RightBuckets = getBuckets(RightArr, Rank),
-      combineBuckets(LeftBuckets, RightBuckets);
-    true ->
-      MiddleIndex = length(Array),
-      {LeftArr, RightArr} = arrayUtils:splitListAt(Array, MiddleIndex),
-      LeftBuckets = sortRec(LeftArr, Rank, MaxNum, Depth + 1, P),
-      RightBuckets = sortRec(RightArr, Rank, MaxNum, Depth + 1, P),
-      combineBuckets(LeftBuckets, RightBuckets)
-  end.
+sort(Array, P) ->
+  MaxNum = arrayUtils:max(Array),
+  sortRec(Array, 1, MaxNum, P).
 
 sortRec(Array, Rank, MaxNum, P) ->
   if
     (MaxNum div Rank =< 0) ->
       Array;
     true ->
-      Combined = sortRec(Array, Rank, MaxNum, 0, P),
+      Combined = sortRec(Array, Rank, MaxNum, P div 2, P),
       SortedByRank = sortBuckets(Combined),
       sortRec(SortedByRank, Rank * 10, MaxNum, P)
+  end.
+
+sortRec(Array, Rank, MaxNum, Depth, P) ->
+  if
+    (Depth == 0) ->
+      io:fwrite("sortRec!~n", []),
+      getBuckets(Array, Rank);
+    true ->
+      MiddleIndex = length(Array),
+      {LeftArr, RightArr} = arrayUtils:splitListAt(Array, MiddleIndex),
+      Parent = self(),
+      RefLeft = make_ref(),
+      RefRight = make_ref(),
+      spawn_link(fun() ->
+        Parent ! {RefLeft, sortRec(LeftArr, Rank, MaxNum, Depth - 1, P)}
+      end),
+      spawn_link(fun() ->
+        Parent ! {RefRight, sortRec(RightArr, Rank, MaxNum, Depth - 1, P)}
+      end),
+      combineBuckets(receive {RefLeft, LeftBuckets} -> LeftBuckets end, receive {RefRight, RightBuckets} -> RightBuckets end)
   end.
 
 sortBuckets(Buckets) ->
