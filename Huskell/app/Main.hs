@@ -4,6 +4,8 @@ import Data.List (delete, maximum)
 import Control.Parallel
 import Control.Monad
 import Debug.Trace
+import System.Environment
+import System.IO
 
 radixSort :: [Int] -> Int -> [Int]
 radixSort [] _ = []
@@ -82,10 +84,15 @@ digitByRank number rank =
 randomInts :: Int -> (Int,Int) -> IO [Int]
 randomInts len bounds = replicateM len $ randomRIO bounds
 
+readInt:: String -> Int
+readInt = read
+
 main = do
-  randomArray <- (randomInts 10000 (0,100))
+  contents <- readFile "5000.txt"
+  
+  let array = map readInt . words $ contents
   start <- getCurrentTime
-  result <- (\x -> return x ) (length (radixSort randomArray 8))
+  result <- (\x -> return x ) (length (radixSort array 8))
   print result
   stop <- getCurrentTime
   print $ diffUTCTime stop start

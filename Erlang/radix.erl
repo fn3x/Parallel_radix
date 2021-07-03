@@ -1,5 +1,5 @@
 -module(radix).
--export([sort/2, benchmark/3]).
+-export([sort/2, benchmark/3, fileSort/2]).
 -import(arrayUtils, [max/1, splitListAt/2]).
 -import(lists, [nth/2]).
 -author("Art").
@@ -9,9 +9,36 @@ benchmark(Fun, L, P) ->
           || _ <- lists:seq(1, 10)],
   lists:sum([T || {T, _} <- Runs]) / (1000 * length(Runs)).
 
+fileSort(P, Filename) ->
+  case file:open(Filename, [read]) of
+    {ok, IoDevice} ->
+      List = readFile2(IoDevice, []),
+      file:close(IoDevice),
+      StartTime = erlang:system_time(millisecond),
+      sort(List, P),
+      EndTime = erlang:system_time(millisecond),
+      io:format("Sort time: ~p~n", [(EndTime - StartTime)/1000]),
+      file:close(IoDevice);
+    {error, Reason} ->  io:format("~p", [Reason])
+  end.
+
+readFile2( IoDevice, List ) ->
+  case file:read_line(IoDevice) of
+    {ok, Data} ->
+      Res = lists:map(
+        fun(String) ->
+          list_to_integer(String) end,
+        string:tokens(Data, " ")),
+      readFile2(IoDevice, lists:append(List, Res));
+    eof -> List
+  end.
+
 sort(Array, P) ->
   MaxNum = arrayUtils:max(Array),
-  sortRec(Array, 1, MaxNum, P).
+  StartTime = erlang:system_time(millisecond),
+  sortRec(Array, 1, MaxNum, P),
+  EndTime = erlang:system_time(millisecond),
+  io:format("Sort time: ~p~n", [(EndTime - StartTime)/1000]).
 
 sortRec(Array, Rank, MaxNum, P) ->
   if

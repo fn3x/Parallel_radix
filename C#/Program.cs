@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace C_
 {
@@ -11,21 +12,22 @@ namespace C_
     static int numOfThreads = 8;
     static void Main(string[] args)
     {
-      int Min = 0;
-      int Max = 10;
-      int sizeOfArray = 10;
+      var watch = System.Diagnostics.Stopwatch.StartNew();
+      int sizeOfArray = 10000;
       initialArray = new int[sizeOfArray];
 
-      generateArray(Min, Max, sizeOfArray);
+      string fileContent = File.ReadAllText(sizeOfArray.ToString() + ".txt");
+      string[] integerStrings = fileContent.Split(new char[] { ',', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+      for (int i = 0; i < sizeOfArray; i++)
+        initialArray[i] = int.Parse(integerStrings[i]);
 
       int maxNum = findMaxNum();
 
       calculateIndicesForThreads();
 
-      PrintArray();
-      var watch = System.Diagnostics.Stopwatch.StartNew();
-      // radixParallel(maxNum, sizeOfArray);
-      radixSequence(initialArray, sizeOfArray, maxNum);
+      radixParallel(maxNum, sizeOfArray);
+      // radixSequence(initialArray, sizeOfArray, maxNum);
       var elapsedMs = watch.ElapsedMilliseconds;
 
       Console.WriteLine("Elapsed time: " + elapsedMs.ToString() + "ms");
@@ -115,14 +117,6 @@ namespace C_
         freq[(initialArray[i] / place) % 10]--;
       }
 
-      Console.WriteLine("Frequency array: ");
-      for (int i = 0; i < freq.Length; i++)
-      {
-        Console.Write(freq[i]);
-      }
-
-      Console.WriteLine();
-
       //Copy the output array to the input Array, Now the Array will 
       //contain sorted array based on digit at specified place
       for (int i = startIndex; i < endIndex; i++)
@@ -179,14 +173,6 @@ namespace C_
       // Store count of occurrences in count[]
       for (i = 0; i < n; i++)
         count[(arr[i] / exp) % 10]++;
-
-      Console.WriteLine("Frequency array: ");
-      for (int pos = 0; pos < count.Length; pos++)
-      {
-        Console.Write(count[pos]);
-      }
-
-      Console.WriteLine();
 
       // Change count[i] so that count[i] now contains
       // actual
